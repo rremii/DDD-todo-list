@@ -1,33 +1,24 @@
-import { CreateTodoListDto, TodoListDto } from "../dtos/todoList.dto";
-import { Todo } from "../entities/todo.entity";
+import { CreateTodoListDto } from "../dtos/todoList.dto";
+import { TodoMapper } from "../maps/todo.map";
 import { TodoList } from "./../entities/todoList.entity";
+import { TodoRepository } from "./todo.repository";
 
 export class TodoListRepository {
-  constructor() {}
+  constructor(private readonly _todoRepository: TodoRepository) {}
 
   get(): TodoList {
-    const todoListDtoInfo = JSON.parse(localStorage.getItem("todoList") || "");
+    const todos = this._todoRepository.get();
 
-    if (
-      todoListDtoInfo &&
-      todoListDtoInfo.todos &&
-      Array.isArray(todoListDtoInfo.todos)
-    ) {
-      const todoListDto = new CreateTodoListDto(
-        todoListDtoInfo.todos.map((dto) => Todo.createFromDto(dto))
-      );
-      return TodoList.createFromDto(todoListDto);
-    } else {
-      const createListDto = new CreateTodoListDto([]);
+    const createTodoListDto = new CreateTodoListDto(
+      todos.map(TodoMapper.toDto)
+    );
 
-      const todoList = TodoList.createFromDto(createListDto);
-
-      this.save(todoList);
-      return todoList;
-    }
+    return TodoList.create(createTodoListDto);
   }
 
   save(todoList: TodoList) {
-    localStorage.setItem("todoList", JSON.stringify(todoList.getDto()));
+    const todos = todoList.todos;
+
+    this._todoRepository.saveAll(todos);
   }
 }

@@ -1,11 +1,12 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useTodosList } from "./modules/Todo/hooks/useTodosList";
+import { TodoDto } from "./modules/Todo/dtos/todo.dto";
 
 function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { todos, addTodo, deleteTodo } = useTodosList();
+  const { todos, addTodo, deleteTodo, completeTodo } = useTodosList();
 
   const handleAddTodo = () => {
     if (!inputRef.current) return;
@@ -14,8 +15,12 @@ function App() {
     inputRef.current.value = "";
   };
 
-  const handleDeleteTodo = (id: number) => {
-    deleteTodo(id);
+  const handleCompleteTodo = (todo: TodoDto) => {
+    completeTodo(todo, !todo.isCompleted);
+  };
+
+  const handleDeleteTodo = (todo: TodoDto) => {
+    deleteTodo(todo);
   };
 
   return (
@@ -26,9 +31,12 @@ function App() {
       </div>
       <div>
         {todos.map((todo) => (
-          <div key={todo.id}>
+          <div onClick={() => handleCompleteTodo(todo)} key={todo.id}>
             {todo.task}
-            <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
+            <span>
+              status: {todo.isCompleted ? "completed" : "not completed"}
+            </span>
+            <button onClick={() => handleDeleteTodo(todo)}>Delete</button>
           </div>
         ))}
       </div>

@@ -1,8 +1,11 @@
 import { TodoListError } from "../errors/todoList.errors";
-import { Todo } from "./../entities/todo.entity";
-import { TodoDto } from "./todo.dto";
+import { ITodoDto, TodoDto } from "./todo.dto";
 
-export class TodoListDto {
+export interface ITodoListDto {
+  todos: ITodoDto[];
+}
+
+export class TodoListDto implements ITodoListDto {
   constructor(public todos: TodoDto[]) {
     try {
       TodoListDto.validate(this);
@@ -11,15 +14,28 @@ export class TodoListDto {
     }
   }
 
-  static validate(todoList: TodoListDto) {
-    if (!todoList.todos) {
+  serialize(): string {
+    return JSON.stringify(this);
+  }
+
+  static deserialize(raw: string): TodoListDto {
+    const dtoProperties = JSON.parse(raw);
+    return new TodoListDto(dtoProperties.todos);
+  }
+
+  static validate(todoListDto: TodoListDto) {
+    if (!(todoListDto instanceof TodoListDto)) {
+      throw new TodoListError("Invalid dto");
+    }
+
+    if (!todoListDto.todos) {
       throw new TodoListError("Invalid todos");
     }
   }
 }
 
 export class CreateTodoListDto {
-  constructor(public todos: Todo[]) {
+  constructor(public todos: TodoDto[]) {
     try {
       CreateTodoListDto.validate(this);
     } catch (e) {
@@ -32,7 +48,7 @@ export class CreateTodoListDto {
       throw new TodoListError("Invalid todos");
     }
 
-    if (!(dto instanceof TodoDto)) {
+    if (!(dto instanceof CreateTodoListDto)) {
       throw new TodoListError("Invalid todos");
     }
   }

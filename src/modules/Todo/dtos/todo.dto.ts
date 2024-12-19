@@ -1,7 +1,9 @@
+import { UniqueID } from "../../Shared/valueObjects/uniqueID.v_o";
 import { TodoError } from "../errors/todo.errors";
+import { v4 as uuidv4 } from "uuid";
 
 export class CreateTodoDto {
-  id = new Date().getTime();
+  id = uuidv4();
   isCompleted = false;
 
   constructor(public task: string) {
@@ -20,16 +22,23 @@ export class CreateTodoDto {
 }
 
 export class DeleteTodoDto {
-  constructor(public id: number) {}
+  constructor(public todoDto: TodoDto) {
+    try {
+      DeleteTodoDto.validate(this);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   static validate(dto: DeleteTodoDto) {
-    if (typeof dto.id !== "number" || dto.id < 0) {
-      throw new TodoError("Invalid id");
+    if (!dto.todoDto) {
+      throw new TodoError("Invalid todoDto");
     }
   }
 }
+
 export class CompleteTodoDto {
-  constructor(public id: number, public isCompleted: boolean) {
+  constructor(public todoDto: TodoDto, public isCompleted: boolean) {
     try {
       CompleteTodoDto.validate(this);
     } catch (e) {
@@ -38,18 +47,21 @@ export class CompleteTodoDto {
   }
 
   static validate(dto: CompleteTodoDto) {
-    if (typeof dto.id !== "number" || dto.id < 0) {
-      throw new TodoError("Invalid id");
-    }
     if (typeof dto.isCompleted !== "boolean") {
       throw new TodoError("Invalid isCompleted");
     }
   }
 }
 
-export class TodoDto {
+export interface ITodoDto {
+  id: string;
+  task: string;
+  isCompleted: boolean;
+}
+
+export class TodoDto implements ITodoDto {
   constructor(
-    public id: number,
+    public id: string,
     public task: string,
     public isCompleted: boolean
   ) {
@@ -60,8 +72,22 @@ export class TodoDto {
     }
   }
 
+  serialize(): string {
+    return JSON.stringify(this);
+  }
+
+  static deserialize(raw: string): TodoDto {
+    const dtoProperties = JSON.parse(raw);
+
+    return new TodoDto(
+      dtoProperties.id,
+      dtoProperties.task,
+      dtoProperties.isCompleted
+    );
+  }
+
   static validate(dto: TodoDto) {
-    if (typeof dto.id !== "number" || dto.id < 0) {
+    if (typeof dto.id !== "string") {
       throw new TodoError("Invalid id");
     }
   }

@@ -1,21 +1,35 @@
-import { CreateTodoDto, TodoDto } from "../dtos/todo.dto";
+import { TodoDto } from "../dtos/todo.dto";
+import { Entity } from "../../Shared/entities/base.entity";
+import { UniqueID } from "../../Shared/valueObjects/uniqueID.v_o";
 
-export class Todo {
-  private constructor(
-    private _id: number,
-    private _task: string,
-    private _isCompleted: boolean
-  ) {}
+interface ITodoProps {
+  task: string;
+  isCompleted: boolean;
+}
 
-  public static createFromDto(dto: CreateTodoDto) {
-    return new Todo(dto.id, dto.task, dto.isCompleted);
+export class Todo extends Entity<ITodoProps> {
+  private constructor(props: ITodoProps, id?: UniqueID) {
+    super(props, id);
   }
 
-  public getDto() {
-    return new TodoDto(this._id, this._task, this._isCompleted);
+  public static create(dto: TodoDto) {
+    return new Todo(
+      {
+        task: dto.task,
+        isCompleted: dto.isCompleted,
+      },
+      new UniqueID(dto.id)
+    );
+  }
+
+  get task() {
+    return this.props.task;
+  }
+  get isCompleted() {
+    return this.props.isCompleted;
   }
 
   set isCompleted(value: boolean) {
-    this._isCompleted = value;
+    this.props.isCompleted = value;
   }
 }

@@ -1,3 +1,3 @@
-export class Event {
+export class BaseEvent {
   constructor(public name: string) {}
 }

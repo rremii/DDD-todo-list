@@ -1,39 +1,61 @@
 import { useEffect, useState } from "react";
-import { EventBus } from "../../Shared/eventBus/eventBus";
-import { CreateTodoDto, DeleteTodoDto } from "../dtos/todo.dto";
-import { TodoCreatedEvent } from "../events/todoList.events";
+import {
+  CompleteTodoDto,
+  CreateTodoDto,
+  DeleteTodoDto,
+  TodoDto,
+} from "../dtos/todo.dto";
 import { TodoListRepository } from "../repositories/todoList.repository";
 import { TodoListService } from "../services/todoList.service";
 import { TodoListDto } from "../dtos/todoList.dto";
+import { TodoRepository } from "../repositories/todo.repository";
+import {
+  TodoCompletedEvent,
+  TodoCreatedEvent,
+  TodoDeletedEvent,
+} from "../events/todoList.events";
+import { EventBus } from "../../Shared/eventBus/event.bus";
 
-const todoListService = new TodoListService(new TodoListRepository());
-
-export const eventBus = new EventBus();
-export const todoCreatedEvent = new TodoCreatedEvent();
+const todoRepository = new TodoRepository();
+const todoListRepository = new TodoListRepository(todoRepository);
+const todoListService = new TodoListService(todoListRepository);
 
 export const useTodosList = () => {
-  const [todoList, setTodoList] = useState<TodoListDto>(todoListService.get());
-  const handleTodoCreated = () => {
+  const [todoList, setTodoList] = useState<TodoListDto>(() =>
+    todoListService.get()
+  );
+
+  const handleTodoUpdated = () => {
     const todoList = todoListService.get();
     setTodoList(todoList);
   };
 
   useEffect(() => {
-    eventBus.on(todoCreatedEvent, handleTodoCreated);
+    const todoCreatedEvent = new TodoCreatedEvent();
+    const todoDeletedEvent = new TodoDeletedEvent();
+    const todoCompletedEvent = new TodoCompletedEvent();
+
+    EventBus.on(todoCreatedEvent, handleTodoUpdated);
+    EventBus.on(todoDeletedEvent, handleTodoUpdated);
+    EventBus.on(todoCompletedEvent, handleTodoUpdated);
     return () => {
-      eventBus.off(todoCreatedEvent, handleTodoCreated);
+      EventBus.off(todoCreatedEvent, handleTodoUpdated);
+      EventBus.off(todoDeletedEvent, handleTodoUpdated);
+      EventBus.off(todoCompletedEvent, handleTodoUpdated);
     };
   }, []);
 
   const addTodo = (task: string) => {
-    const dto = new CreateTodoDto(task);
-    todoListService.createTodo(dto);
+    todoListService.createTodo(new CreateTodoDto(task));
   };
 
-  const deleteTodo = (id: number) => {
-    const dto = new DeleteTodoDto(id);
-    todoListService.deleteTodo(dto);
+  const deleteTodo = (dto: TodoDto) => {
+    todoListService.deleteTodo(new DeleteTodoDto(dto));
   };
 
-  return { todos: todoList.todos, addTodo, deleteTodo };
+  const completeTodo = (dto: TodoDto, isCompleted: boolean) => {
+    todoListService.completeTodo(new CompleteTodoDto(dto, isCompleted));
+  };
+
+  return { todos: todoList.todos, addTodo, deleteTodo, completeTodo };
 };
