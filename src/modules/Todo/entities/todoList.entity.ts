@@ -1,9 +1,5 @@
-import {
-  CompleteTodoDto,
-  CreateTodoDto,
-  DeleteTodoDto,
-} from "../dtos/todo.dto";
 import { CreateTodoListDto, TodoListDto } from "../dtos/todoList.dto";
+import { eventBus, todoCreatedEvent } from "../hooks/useTodosList";
 import { Todo } from "./todo.entity";
 
 export class TodoList {
@@ -13,7 +9,7 @@ export class TodoList {
     return new TodoList(dto.todos);
   }
 
-  getDto() {
+  getDto(): TodoListDto {
     return new TodoListDto(this._todos.map((todo) => todo.getDto()));
   }
 
@@ -27,6 +23,7 @@ export class TodoList {
 
   addTodo(todo: Todo) {
     this._todos.push(todo);
+    eventBus.emit(todoCreatedEvent);
   }
 
   deleteTodo(id: number) {

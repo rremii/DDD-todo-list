@@ -2,18 +2,26 @@ import {
   CompleteTodoDto,
   CreateTodoDto,
   DeleteTodoDto,
-  TodoDto,
 } from "../dtos/todo.dto";
+import { TodoListDto } from "../dtos/todoList.dto";
 import { Todo } from "../entities/todo.entity";
 import { TodoListRepository } from "../repositories/todoList.repository";
 
 export class TodoListService {
   constructor(private _todoListRepository: TodoListRepository) {}
 
-  getAllTodos(): TodoDto[] {
+  get(): TodoListDto {
     const todoList = this._todoListRepository.get();
 
-    return todoList.todos.map((todo) => todo.getDto());
+    const todos = todoList.todos;
+
+    const todosDtos = todos.map((todo) => todo.getDto());
+
+    const todoListDto = todoList.getDto();
+
+    todoListDto.list = todosDtos;
+
+    return todoList;
   }
 
   createTodo(dto: CreateTodoDto) {

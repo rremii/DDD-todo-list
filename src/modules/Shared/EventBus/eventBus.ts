@@ -1,6 +1,6 @@
 import { Event } from "./events";
 
-type EventHandler = () => void;
+type EventHandler = (event: Event) => void;
 
 type Events = Record<string, EventHandler[]>;
 
@@ -19,17 +19,17 @@ export class EventBus {
     this._events[event.name] = handlers;
   }
 
-  off(event: string, removeHandler: EventHandler) {
-    const handlers = this._events[event];
+  off(event: Event, removeHandler: EventHandler) {
+    const handlers = this._events[event.name];
 
     if (!handlers) return;
 
     handlers.filter((handler) => handler !== removeHandler);
 
     if (handlers.length === 0) {
-      delete this._events[event];
+      delete this._events[event.name];
     } else {
-      this._events[event] = handlers;
+      this._events[event.name] = handlers;
     }
   }
 
@@ -37,6 +37,6 @@ export class EventBus {
     const handlers = this._events[event.name];
     if (!handlers) return;
 
-    handlers.forEach((handler) => handler());
+    handlers.forEach((handler) => handler(event));
   }
 }

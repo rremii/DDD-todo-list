@@ -1,8 +1,9 @@
 import { TodoListError } from "../errors/todoList.errors";
 import { Todo } from "./../entities/todo.entity";
+import { TodoDto } from "./todo.dto";
 
 export class TodoListDto {
-  constructor(public todos: Todo[]) {
+  constructor(public todos: TodoDto[]) {
     try {
       TodoListDto.validate(this);
     } catch (e) {
@@ -31,7 +32,7 @@ export class CreateTodoListDto {
       throw new TodoListError("Invalid todos");
     }
 
-    if (!(dto instanceof Todo)) {
+    if (!(dto instanceof TodoDto)) {
       throw new TodoListError("Invalid todos");
     }
   }
