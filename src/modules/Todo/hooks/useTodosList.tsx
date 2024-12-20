@@ -13,7 +13,15 @@ import { DomainEventBus } from "../../Shared/domainEvents/domainEvent.bus";
 import {
   TodoCreatedEvent,
   TodoCreatedEventHandler,
-} from "../events/todoList.events";
+} from "../events/todoCreated.event";
+import {
+  TodoCompletedEvent,
+  TodoCompletedEventHandler,
+} from "../events/todoCompleted.event";
+import {
+  TodoDeletedEvent,
+  TodoDeletedEventHandler,
+} from "../events/todoDeleted.event";
 
 const todoRepository = new TodoRepository();
 const todoListRepository = new TodoListRepository(todoRepository);
@@ -30,11 +38,19 @@ export const useTodosList = () => {
 
   useEffect(() => {
     const todoCreatedHandler = new TodoCreatedEventHandler(handleTodoUpdated);
+    const todoCompletedHandler = new TodoCompletedEventHandler(
+      handleTodoUpdated
+    );
+    const todoDeletedHandler = new TodoDeletedEventHandler(handleTodoUpdated);
 
     DomainEventBus.on(new TodoCreatedEvent(), todoCreatedHandler);
+    DomainEventBus.on(new TodoCompletedEvent(), todoCompletedHandler);
+    DomainEventBus.on(new TodoDeletedEvent(), todoDeletedHandler);
 
     return () => {
       DomainEventBus.off(new TodoCreatedEvent(), todoCreatedHandler);
+      DomainEventBus.off(new TodoCompletedEvent(), todoCompletedHandler);
+      DomainEventBus.off(new TodoDeletedEvent(), todoDeletedHandler);
     };
   }, []);
 
