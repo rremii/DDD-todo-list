@@ -22,6 +22,6 @@ export class TodoListRepository {
 
     this._todoRepository.saveAll(todos);
 
-    DomainEventBus.emit(todoList);
+    DomainEventBus.emit(todoList.domainEvents);
   }
 }

@@ -28,10 +28,8 @@ export class DomainEventBus {
       );
   }
 
-  static emit(aggregate: AggregateRoot<unknown>): void {
-    const aggregateEvents = aggregate.domainEvents;
-
-    aggregateEvents.forEach((event) => {
+  static emit(events: BaseEventWithPayload<BaseEvent, unknown>[]): void {
+    events.forEach((event) => {
       this._eventsMap[event.name].forEach((handler) =>
         handler.callback(event.payload)
       );
