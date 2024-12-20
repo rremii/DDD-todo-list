@@ -1,4 +1,10 @@
-import { BaseEvent } from "../../Shared/eventBus/base.event";
+import {
+  BaseEvent,
+  BaseEventHandler,
+  BaseEventWithPayload,
+  EventHandler,
+} from "../../Shared/domainEvents/base.event";
+import { TodoListDto } from "../dtos/todoList.dto";
 
 export class TodoCreatedEvent extends BaseEvent {
   constructor() {
@@ -6,14 +12,17 @@ export class TodoCreatedEvent extends BaseEvent {
   }
 }
 
-export class TodoDeletedEvent extends BaseEvent {
-  constructor() {
-    super("todo-deleted");
+export class TodoCreatedEventWithPayload extends BaseEventWithPayload<
+  TodoCreatedEvent,
+  TodoListDto
+> {
+  constructor(public readonly todoListDto: TodoListDto) {
+    super(new TodoCreatedEvent(), todoListDto);
   }
 }
 
-export class TodoCompletedEvent extends BaseEvent {
-  constructor() {
-    super("todo-completed");
+export class TodoCreatedEventHandler extends BaseEventHandler<TodoCreatedEventWithPayload> {
+  constructor(callback: EventHandler<TodoListDto>) {
+    super(callback);
   }
 }

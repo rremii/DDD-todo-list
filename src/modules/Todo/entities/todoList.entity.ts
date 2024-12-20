@@ -1,13 +1,9 @@
+import { TodoCreatedEventWithPayload } from "./../events/todoList.events";
 import { AggregateRoot } from "../../Shared/entities/aggregate.entity";
-import {
-  TodoCompletedEvent,
-  TodoCreatedEvent,
-  TodoDeletedEvent,
-} from "../events/todoList.events";
 import { Todo } from "./todo.entity";
 import { TodoMapper } from "../maps/todo.map";
 import { CreateTodoListDto } from "../dtos/todoList.dto";
-import { EventBus } from "../../Shared/eventBus/event.bus";
+import { TodoListMapper } from "../maps/todoList.map";
 
 interface TodoListProps {
   todos: Todo[];
@@ -40,18 +36,20 @@ export class TodoList extends AggregateRoot<TodoListProps> {
       return todo;
     });
 
-    EventBus.emit(new TodoCompletedEvent());
+    // this.addDomainEvent(new ());
   }
 
   addTodo(todo: Todo) {
     this.todos = [...this.todos, todo];
 
-    EventBus.emit(new TodoCreatedEvent());
+    this.addDomainEvent(
+      new TodoCreatedEventWithPayload(TodoListMapper.toDto(this))
+    );
   }
 
   deleteTodo(deleteTodo: Todo) {
     this.todos = this.todos.filter((todo) => !todo.equals(deleteTodo));
 
-    EventBus.emit(new TodoDeletedEvent());
+    // EventBus.emit(new TodoDeletedEvent());
   }
 }

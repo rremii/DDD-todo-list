@@ -1,33 +1,25 @@
+import { BaseEvent, BaseEventWithPayload } from "../domainEvents/base.event";
+import { UniqueID } from "../valueObjects/uniqueID.v_o";
 import { Entity } from "./base.entity";
-// import { BaseEvent } from "../eventBus/base.event";
-
-// type EventHandler = () => void;
 
 export abstract class AggregateRoot<T> extends Entity<T> {
-  //   private static _events: {
-  //     [key: BaseEvent["name"]]: EventHandler[];
-  //   } = {};
-  //   static on(event: BaseEvent, handler: EventHandler) {
-  //     const handlers = AggregateRoot._events[event.name];
-  //     if (!handlers) {
-  //       return (AggregateRoot._events[event.name] = [handler]);
-  //     }
-  //     AggregateRoot._events[event.name].push(handler);
-  //   }
-  //   static off(event: BaseEvent, removeHandler: EventHandler) {
-  //     const handlers = AggregateRoot._events[event.name];
-  //     const filteredHandlers = handlers?.filter(
-  //       (handler) => handler !== removeHandler
-  //     );
-  //     if (filteredHandlers?.length === 0) {
-  //       delete AggregateRoot._events[event.name];
-  //     } else {
-  //       AggregateRoot._events[event.name] = filteredHandlers;
-  //     }
-  //   }
-  //   static emit(event: BaseEvent) {
-  //     const handlers = AggregateRoot._events[event.name];
-  //     if (!handlers) return;
-  //     handlers.forEach((handler) => handler());
-  //   }
+  private _domainEvents: BaseEventWithPayload<BaseEvent, unknown>[] = [];
+
+  get id(): UniqueID {
+    return this._id;
+  }
+
+  get domainEvents(): BaseEventWithPayload<BaseEvent, unknown>[] {
+    return this._domainEvents;
+  }
+
+  protected addDomainEvent(
+    domainEvent: BaseEventWithPayload<BaseEvent, unknown>
+  ): void {
+    this._domainEvents.push(domainEvent);
+  }
+
+  public clearEvents(): void {
+    this._domainEvents.splice(0, this._domainEvents.length);
+  }
 }

@@ -1,3 +1,4 @@
+import { DomainEventBus } from "../../Shared/domainEvents/domainEvent.bus";
 import { CreateTodoListDto } from "../dtos/todoList.dto";
 import { TodoMapper } from "../maps/todo.map";
 import { TodoList } from "./../entities/todoList.entity";
@@ -20,5 +21,7 @@ export class TodoListRepository {
     const todos = todoList.todos;
 
     this._todoRepository.saveAll(todos);
+
+    DomainEventBus.emit(todoList);
   }
 }

@@ -9,12 +9,11 @@ import { TodoListRepository } from "../repositories/todoList.repository";
 import { TodoListService } from "../services/todoList.service";
 import { TodoListDto } from "../dtos/todoList.dto";
 import { TodoRepository } from "../repositories/todo.repository";
+import { DomainEventBus } from "../../Shared/domainEvents/domainEvent.bus";
 import {
-  TodoCompletedEvent,
   TodoCreatedEvent,
-  TodoDeletedEvent,
+  TodoCreatedEventHandler,
 } from "../events/todoList.events";
-import { EventBus } from "../../Shared/eventBus/event.bus";
 
 const todoRepository = new TodoRepository();
 const todoListRepository = new TodoListRepository(todoRepository);
@@ -25,23 +24,17 @@ export const useTodosList = () => {
     todoListService.get()
   );
 
-  const handleTodoUpdated = () => {
-    const todoList = todoListService.get();
-    setTodoList(todoList);
+  const handleTodoUpdated = (todoListDto: TodoListDto) => {
+    setTodoList(todoListDto);
   };
 
   useEffect(() => {
-    const todoCreatedEvent = new TodoCreatedEvent();
-    const todoDeletedEvent = new TodoDeletedEvent();
-    const todoCompletedEvent = new TodoCompletedEvent();
+    const todoCreatedHandler = new TodoCreatedEventHandler(handleTodoUpdated);
 
-    EventBus.on(todoCreatedEvent, handleTodoUpdated);
-    EventBus.on(todoDeletedEvent, handleTodoUpdated);
-    EventBus.on(todoCompletedEvent, handleTodoUpdated);
+    DomainEventBus.on(new TodoCreatedEvent(), todoCreatedHandler);
+
     return () => {
-      EventBus.off(todoCreatedEvent, handleTodoUpdated);
-      EventBus.off(todoDeletedEvent, handleTodoUpdated);
-      EventBus.off(todoCompletedEvent, handleTodoUpdated);
+      DomainEventBus.off(new TodoCreatedEvent(), todoCreatedHandler);
     };
   }, []);
 
