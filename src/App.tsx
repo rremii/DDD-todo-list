@@ -1,4 +1,10 @@
-import { observer } from "mobx-react-lite";
+import { container } from "./modules/IoC/container";
+import { TodoRepository } from "./modules/Todo/repositories/todo.repository";
+import { TodoListRepository } from "./modules/Todo/repositories/todoList.repository";
+import { TodoListService } from "./modules/Todo/services/todoList.service";
+
+container.init([TodoListService]);
+
 import { useRef } from "react";
 import { useTodosList } from "./modules/Todo/hooks/useTodosList";
 import { TodoDto } from "./modules/Todo/dtos/todo.dto";
@@ -44,4 +50,4 @@ function App() {
   );
 }
 
-export default observer(App);
+export default App;

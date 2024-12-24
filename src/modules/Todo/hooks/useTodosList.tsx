@@ -5,10 +5,8 @@ import {
   DeleteTodoDto,
   TodoDto,
 } from "../dtos/todo.dto";
-import { TodoListRepository } from "../repositories/todoList.repository";
 import { TodoListService } from "../services/todoList.service";
 import { TodoListDto } from "../dtos/todoList.dto";
-import { TodoRepository } from "../repositories/todo.repository";
 import { DomainEventBus } from "../../Shared/domainEvents/domainEvent.bus";
 import {
   TodoCreatedEvent,
@@ -22,6 +20,11 @@ import {
   TodoDeletedEvent,
   TodoDeletedEventHandler,
 } from "../events/todoDeleted.event";
+import { container } from "../../IoC/container";
+import { TodoRepository } from "../repositories/todo.repository";
+import { TodoListRepository } from "../repositories/todoList.repository";
+
+// const todoListService = container.get(TodoListService);
 
 const todoRepository = new TodoRepository();
 const todoListRepository = new TodoListRepository(todoRepository);

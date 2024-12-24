@@ -2,13 +2,15 @@ import { TodoDto } from "../dtos/todo.dto";
 import { Todo } from "../entities/todo.entity";
 import { TodoError } from "../errors/todo.errors";
 import { TodoMapper } from "../maps/todo.map";
-import { IRepository } from "../../Shared/repositories/base.reposipory";
+import { IRepository } from "../../Shared/repositories/base.repository";
+import { Injectable } from "../../IoC/decorators/Injectable.decorator";
 
 interface ITodoRepository extends IRepository<Todo> {
   getById(id: number): Todo;
   saveBulk(entities: Todo[]): void;
 }
 
+@Injectable()
 export class TodoRepository implements ITodoRepository {
   constructor() {}
 

@@ -1,9 +1,11 @@
+import { Injectable } from "../../IoC/decorators/Injectable.decorator";
 import { DomainEventBus } from "../../Shared/domainEvents/domainEvent.bus";
 import { CreateTodoListDto } from "../dtos/todoList.dto";
 import { TodoMapper } from "../maps/todo.map";
 import { TodoList } from "./../entities/todoList.entity";
 import { TodoRepository } from "./todo.repository";
 
+@Injectable()
 export class TodoListRepository {
   constructor(private readonly _todoRepository: TodoRepository) {}
 
