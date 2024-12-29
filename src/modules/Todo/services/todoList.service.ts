@@ -11,21 +11,6 @@ import { TodoMapper } from "../maps/todo.map";
 import { TodoListMapper } from "../maps/todoList.map";
 import { TodoListRepository } from "../repositories/todoList.repository";
 
-// function Log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-//   const originalMethod = descriptor.value;
-//   descriptor.value = function (...args: any[]) {
-//     console.log(`Arguments for ${propertyKey}:`, args);
-//     const result = originalMethod.apply(this, args);
-//     return result;
-//   };
-//   Reflect.defineMetadata(
-//     "design:paramtypes",
-//     [String, Number],
-//     target,
-//     propertyKey
-//   );
-// }
-
 @Injectable()
 export class TodoListService {
   constructor(private _todoListRepository: TodoListRepository) {}

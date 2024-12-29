@@ -1,42 +1,35 @@
+import { BaseConstructor } from "../types";
+
 export class IoCContainer {
-  dependencies = [];
+  private constructor(
+    public _dependencies: Record<string, BaseConstructor> = {}
+  ) {}
 
-  init(deps: any[]) {
-    // deps.map((target) => {
-    //   const isInjectable = Reflect.getMetadata("injectable", target);
-    //   if (!isInjectable) return;
-
-    //   // get the typeof parameters of constructor
-
-    //   const paramTypes = Reflect.getMetadata("design:paramtypes", target) || [];
-    //   //   debugger;
-
-    //   // resolve dependecies of current dependency
-    //   const childrenDep = paramTypes.map((paramType) => {
-    //     // recursively resolve all child dependencies:
-    //     this.init([paramType]);
-
-    //     if (!this.dependencies[paramType.name]) {
-    //       this.dependencies[paramType.name] = new paramType();
-    //       return this.dependencies[paramType.name];
-    //     }
-    //     return this.dependencies[paramType.name];
-    //   });
-
-    //   // resolve dependency by injection child classes that already resolved
-    //   if (!this.dependencies[target.name]) {
-    //     this.dependencies[target.name] = new target(...childrenDep);
-    //   }
-    // });
-
-    return this;
+  static create() {
+    return new IoCContainer();
   }
 
-  public get<T extends new (...args: any[]) => any>(
-    serviceClass: T
-  ): InstanceType<T> {
-    return this.dependencies[serviceClass.name];
+  public init(dependencies: BaseConstructor[]) {
+    const filteredDependencies = dependencies.filter((dependency) =>
+      Reflect.getMetadata("injectable", dependency)
+    );
+
+    this._dependencies = filteredDependencies.reduce(
+      (depsObject: Record<string, BaseConstructor>, dependency) => {
+        depsObject[dependency.name] = dependency;
+        return depsObject;
+      },
+      {}
+    );
+  }
+
+  public get<T extends BaseConstructor>(Entity: T): InstanceType<T> {
+    const Class = this._dependencies[Entity.name];
+    if (!Class) throw new Error("IoC error - Class not found");
+
+    const params = (Reflect.getMetadata("design:paramtypes", Class) ||
+      []) as BaseConstructor[];
+
+    return new Class(...params.map((param) => this.get(param)));
   }
 }
-
-export const container = new IoCContainer();

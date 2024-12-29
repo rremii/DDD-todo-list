@@ -20,19 +20,13 @@ import {
   TodoDeletedEvent,
   TodoDeletedEventHandler,
 } from "../events/todoDeleted.event";
-import { container } from "../../IoC/container";
-import { TodoRepository } from "../repositories/todo.repository";
-import { TodoListRepository } from "../repositories/todoList.repository";
-
-// const todoListService = container.get(TodoListService);
-
-const todoRepository = new TodoRepository();
-const todoListRepository = new TodoListRepository(todoRepository);
-const todoListService = new TodoListService(todoListRepository);
+import { useContainer } from "../../IoC/hooks/useContainer";
 
 export const useTodosList = () => {
-  const [todoList, setTodoList] = useState<TodoListDto>(() =>
-    todoListService.get()
+  const todoListService = useContainer(TodoListService);
+
+  const [todoList, setTodoList] = useState<TodoListDto | undefined>(() =>
+    todoListService?.get()
   );
 
   const handleTodoUpdated = (todoListDto: TodoListDto) => {
@@ -58,16 +52,16 @@ export const useTodosList = () => {
   }, []);
 
   const addTodo = (task: string) => {
-    todoListService.createTodo(new CreateTodoDto(task));
+    todoListService?.createTodo(new CreateTodoDto(task));
   };
 
   const deleteTodo = (dto: TodoDto) => {
-    todoListService.deleteTodo(new DeleteTodoDto(dto));
+    todoListService?.deleteTodo(new DeleteTodoDto(dto));
   };
 
   const completeTodo = (dto: TodoDto, isCompleted: boolean) => {
-    todoListService.completeTodo(new CompleteTodoDto(dto, isCompleted));
+    todoListService?.completeTodo(new CompleteTodoDto(dto, isCompleted));
   };
 
-  return { todos: todoList.todos, addTodo, deleteTodo, completeTodo };
+  return { todos: todoList?.todos, addTodo, deleteTodo, completeTodo };
 };
